@@ -27,6 +27,15 @@ const argsProjectValue =
   argsProjectIndex !== -1 ? args[argsProjectIndex + 1] : undefined
 
 const files = args.filter(file => /\.(ts|tsx)$/.test(file))
+const removeCommentsFromJson = fileContent => {
+  return fileContent.replaceAll(/[(\/\*)(\/\/)](.*)/g, '')
+}
+
+// Load existing config
+const tsconfigPath = argsProjectValue || resolveFromRoot('tsconfig.json')
+const fileContent = fs.readFileSync(tsconfigPath, 'utf-8')
+const tsconfig = JSON.parse(removeCommentsFromJson(fileContent))
+
 if (files.length === 0) {
   process.exit(0)
 }
@@ -36,13 +45,6 @@ const remainingArgsToForward = args.slice().filter(arg => !files.includes(arg))
 if (argsProjectIndex !== -1) {
   remainingArgsToForward.splice(argsProjectIndex, 2)
 }
-
-// Load existing config
-const tsconfigPath = argsProjectValue || resolveFromRoot('tsconfig.json')
-const tsconfigContent = fs.readFileSync(tsconfigPath).toString()
-// Use 'eval' to read the JSON as regular JavaScript syntax so that comments are allowed
-let tsconfig = {}
-eval(`tsconfig = ${tsconfigContent}`)
 
 // Write a temp config file
 const tmpTsconfigPath = resolveFromRoot(`tsconfig.${randomChars()}.json`)
