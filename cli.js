@@ -26,7 +26,6 @@ const argsProjectIndex = args.findIndex(arg =>
 const argsProjectValue =
   argsProjectIndex !== -1 ? args[argsProjectIndex + 1] : undefined
 
-const files = args.filter(file => /\.(ts|tsx)$/.test(file))
 const removeCommentsFromJson = fileContent => {
   return fileContent.replaceAll(/[(\/\*)(\/\/)](.*)/g, '')
 }
@@ -35,7 +34,16 @@ const removeCommentsFromJson = fileContent => {
 const tsconfigPath = argsProjectValue || resolveFromRoot('tsconfig.json')
 const fileContent = fs.readFileSync(tsconfigPath, 'utf-8')
 const tsconfig = JSON.parse(removeCommentsFromJson(fileContent))
+const {
+  compilerOptions: { checkJs },
+} = tsconfig
 
+const tsOnlyRegex = /\.(ts|tsx)$/
+const checkJsRegex = /\.(js|cjs|mjs|ts|tsx)$/
+
+const files = args.filter(file =>
+  checkJs ? checkJsRegex.test(file) : tsOnlyRegex.test(file),
+)
 if (files.length === 0) {
   process.exit(0)
 }
