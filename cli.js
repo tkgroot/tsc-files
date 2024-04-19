@@ -50,6 +50,7 @@ const tmpTsconfig = {
   ...tsconfig,
   compilerOptions: {
     ...tsconfig.compilerOptions,
+    emitDeclarationOnly: false,
     skipLibCheck: true,
   },
   files,
